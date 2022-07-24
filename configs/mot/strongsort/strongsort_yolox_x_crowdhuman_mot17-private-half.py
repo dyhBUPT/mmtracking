@@ -2,9 +2,6 @@ _base_ = [
     '../../_base_/models/yolox_x_8x8.py',
     '../../_base_/datasets/mot_challenge.py', '../../_base_/default_runtime.py'
 ]
-default_hooks = dict(
-    # visualization=dict(type='TrackVisualizationHook', draw=True),
-)
 
 model = dict(
     type='StrongSORT',
@@ -23,13 +20,11 @@ model = dict(
         _scope_='mmdet',
         bbox_head=dict(num_classes=1),
         test_cfg=dict(score_thr=0.01, nms=dict(type='nms', iou_threshold=0.7)),
-        # test_cfg=dict(score_thr=0.01, nms=dict(type='nms', iou_threshold=0.8)),
         init_cfg=dict(
             type='Pretrained',
             checkpoint=  # noqa: E251
             '/data1/dyh/models/mmtracking/bytetrack_yolox_x_crowdhuman_mot17-private-half_20211218_205500-1985c9f0_detector.pth'  # noqa: E501
         )),
-    # motion=dict(type='KalmanFilter', center_only=False),
     kalman=dict(type='KalmanFilter', center_only=False, nsa=True),
     cmc=dict(
         type='CameraMotionCompensation',
@@ -60,36 +55,28 @@ model = dict(
         init_cfg=dict(
             type='Pretrained',
             checkpoint=  # noqa: E251
-            # 'https://download.openmmlab.com/mmtracking/mot/reid/tracktor_reid_r50_iter25245-a452f51f.pth'  # noqa: E501
             'https://download.openmmlab.com/mmtracking/mot/reid/reid_r50_6e_mot17-4bf6b63d.pth'  # noqa: E501
         )),
     tracker=dict(
         type='StrongSORTTracker',
-        # obj_score_thr=0.5,
         obj_score_thr=0.6,
         reid=dict(
-            # num_samples=10,
             num_samples=None,
             img_scale=(256, 128),
-            # img_norm_cfg=None,
             img_norm_cfg=dict(
                 mean=[123.675, 116.28, 103.53],
                 std=[58.395, 57.12, 57.375],
                 to_rgb=True
             ),
-            # match_score_thr=2.0,
             match_score_thr=0.3,
             motion_weight=0.02,
         ),
-        # match_iou_thr=0.5,
         match_iou_thr=0.7,
-        # momentums=None,
         momentums=dict(
             embeds=0.1,
         ),
         num_tentatives=2,
         num_frames_retain=100
-        # num_frames_retain=30
     ))
 
 dataset_type = 'MOTChallengeDataset'
@@ -117,6 +104,7 @@ val_dataloader = dict(
         type=dataset_type,
         data_root=data_root,
         ann_file='annotations/half-val_cocoformat.json',
+        # ann_file='annotations/half-val_cocoformat_small.json',
         data_prefix=dict(img_path='train'),
         ref_img_sampler=None,
         load_as_video=True,
@@ -129,6 +117,14 @@ val_cfg = dict(type='ValLoop')
 test_cfg = dict(type='TestLoop')
 
 # evaluator
-# val_evaluator = dict(
-#     interpolate_tracks_cfg=dict(min_num_frames=5, max_num_frames=20))
-# test_evaluator = val_evaluator
+val_evaluator = dict(
+    # interpolate_tracks_cfg=dict(min_num_frames=5, max_num_frames=20),
+    interpolate_tracks_cfg=dict(min_num_frames=5, max_num_frames=20, gsi=True, smooth_tau=10),
+    aflink_cfg=dict(
+        temporal_threshold=(0, 30),
+        spatial_threshold=50,
+        confidence_threshold=0.95
+    ),
+    # resfile_path='/data1/dyh/results/mmtracking/StrongSORT_AFLink_GSI'
+)
+test_evaluator = val_evaluator

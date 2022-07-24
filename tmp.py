@@ -5,6 +5,7 @@
 @Time: 2022/7/17 15:43
 @Description: None
 """
+import os
 import torch
 import numpy as np
 from pprint import pprint
@@ -26,9 +27,5 @@ def ckpt():
 
 
 if __name__ == '__main__':
-    a = np.array([
-        [1, 2, 3],
-        [4, 5, 6]
-    ])
-    a = a[None]
-    print(a)
+    scores = torch.cat([torch.tensor([i]) for i in range(4)])
+    print(scores)

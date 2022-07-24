@@ -3,8 +3,9 @@ from .correlation import depthwise_correlation
 from .interpolation import interpolate_tracks
 from .similarity import embed_similarity
 from .transforms import imrenormalize
+from .aflink import appearance_free_link
 
 __all__ = [
     'depthwise_correlation', 'embed_similarity', 'imrenormalize',
-    'interpolate_tracks'
+    'interpolate_tracks', 'appearance_free_link'
 ]
