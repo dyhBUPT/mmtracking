@@ -118,12 +118,12 @@ test_cfg = dict(type='TestLoop')
 
 # evaluator
 val_evaluator = dict(
-    # interpolate_tracks_cfg=dict(min_num_frames=5, max_num_frames=20),
     interpolate_tracks_cfg=dict(min_num_frames=5, max_num_frames=20, gsi=True, smooth_tau=10),
     aflink_cfg=dict(
         temporal_threshold=(0, 30),
         spatial_threshold=50,
-        confidence_threshold=0.95
+        confidence_threshold=0.95,
+        checkpoint='/data1/dyh/results/StrongSORT_Git/AFLink_epoch20.pth'
     ),
     # resfile_path='/data1/dyh/results/mmtracking/StrongSORT_AFLink_GSI'
 )

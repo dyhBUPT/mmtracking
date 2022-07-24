@@ -73,7 +73,7 @@ class StrongSORT(BaseMultiObjectTracker):
         """Calculate losses from a batch of inputs and data samples."""
         raise NotImplementedError(
             'Please train `detector` and `reid` models firstly, then \
-                inference with SORT/DeepSORT.')
+                inference with StrongSORT.')
 
     def predict(self,
                 batch_inputs: Dict[str, Tensor],
@@ -105,12 +105,12 @@ class StrongSORT(BaseMultiObjectTracker):
         img = batch_inputs['img']
         assert img.dim() == 5, 'The img must be 5D Tensor (N, T, C, H, W).'
         assert img.size(0) == 1, \
-            'SORT/DeepSORT inference only support ' \
+            'StrongSORT inference only support ' \
             '1 batch size per gpu for now.'
         img = img[0]
 
         assert len(batch_data_samples) == 1, \
-            'SORT/DeepSORT inference only support ' \
+            'StrongSORT inference only support ' \
             '1 batch size per gpu for now.'
 
         track_data_sample = batch_data_samples[0]

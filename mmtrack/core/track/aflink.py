@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 import numpy as np
 from torch import nn
@@ -5,6 +7,7 @@ from collections import defaultdict
 from scipy.optimize import linear_sum_assignment
 
 from mmengine.model import BaseModule
+from mmengine.runner.checkpoint import load_checkpoint
 
 from mmtrack.registry import MODELS
 INFINITY = 1e5
@@ -131,7 +134,8 @@ def data_transform(track1, track2, length=30):
 def appearance_free_link(tracks: np.array,
                          temporal_threshold: tuple = (0, 30),
                          spatial_threshold: int = 75,
-                         confidence_threshold: float = 0.95) -> np.array:
+                         confidence_threshold: float = 0.95,
+                         checkpoint: Optional[str] = None) -> np.array:
     """Appearance-Free Link method.
 
     This method is proposed in
@@ -147,19 +151,18 @@ def appearance_free_link(tracks: np.array,
             tracklets association. Defaults to 75.
         confidence_threshold (float, optional): The minimum confidence
             threshold for tracklets association. Defaults to 0.95.
-
+        checkpoint (Optional[str], optional): Checkpoint path. Defaults to
+            None.
     Returns:
         ndarray: The interpolated tracks with shape (N, 7). Each row denotes
             (frame_id, track_id, x1, y1, x2, y2, score)
     """
     model = AFLinkModel()
+    if checkpoint is not None:
+        load_checkpoint(model, checkpoint)
     model.cuda()
     model.eval()
-    model.load_state_dict(
-        torch.load(
-            '/data1/dyh/results/StrongSORT_Git/AFLink_epoch20.pth'
-        )
-    )
+
     fn_l2 = lambda x, y: np.sqrt(x ** 2 + y ** 2)
 
     # sort tracks by the frame id
